@@ -35,6 +35,8 @@ const (
 	LabelStatusCode = "status_code"
 	// Namespace is the metrics prefix
 	Namespace = "aws_health"
+	// AWS Health event ARN
+	LabelEventArn = "event_arn"
 )
 
 var (
@@ -44,7 +46,7 @@ var (
 	Version = "N/A"
 
 	// labels are the static labels that come with every metric
-	labels = []string{LabelCategory, LabelRegion, LabelService, LabelStatusCode}
+	labels = []string{LabelEventArn, LabelCategory, LabelRegion, LabelService, LabelStatusCode}
 
 	// events is the number of aws health events reported
 	eventOpts = prometheus.GaugeOpts{
@@ -91,6 +93,7 @@ func (e *exporter) scrape(gv *prometheus.GaugeVec) {
 
 	for _, e := range events {
 		gv.WithLabelValues(
+			aws.StringValue(e.Arn),
 			aws.StringValue(e.EventTypeCategory),
 			aws.StringValue(e.Region),
 			aws.StringValue(e.Service),

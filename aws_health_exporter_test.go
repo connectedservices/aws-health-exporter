@@ -24,30 +24,35 @@ func (api *mockHealthAPI) DescribeEventsPages(in *health.DescribeEventsInput, fn
 func TestScrape(t *testing.T) {
 	var events = []*health.Event{
 		&health.Event{
+			Arn:               aws.String("arn:aws:health:eu-west-1::event/EC2/AWS_EC2_OPERATIONAL_ISSUE/AWS_EC2_OPERATIONAL_ISSUE-XXXX"),
 			EventTypeCategory: aws.String("issue"),
 			Region:            aws.String("eu-west-1"),
 			Service:           aws.String("EC2"),
 			StatusCode:        aws.String("open"),
 		},
 		&health.Event{
+			Arn:               aws.String("arn:aws:health:us-east-1::event/EC2/AWS_EC2_OPERATIONAL_ISSUE/AWS_EC2_OPERATIONAL_ISSUE-XXXX"),
 			EventTypeCategory: aws.String("issue"),
 			Region:            aws.String("us-east-1"),
 			Service:           aws.String("EC2"),
 			StatusCode:        aws.String("open"),
 		},
 		&health.Event{
+			Arn:               aws.String("arn:aws:health:us-east-1::event/LAMBDA/AWS_LAMBDA_OPERATIONAL_ISSUE/AWS_LAMBDA_OPERATIONAL_ISSUE-XXXX"),
 			EventTypeCategory: aws.String("issue"),
 			Region:            aws.String("us-east-1"),
 			Service:           aws.String("LAMBDA"),
 			StatusCode:        aws.String("closed"),
 		},
 		&health.Event{
+			Arn:               aws.String("arn:aws:health:us-east-1::event/LAMBDA/AWS_LAMBDA_OPERATIONAL_ISSUE/AWS_LAMBDA_OPERATIONAL_ISSUE-XXXX"),
 			EventTypeCategory: aws.String("issue"),
 			Region:            aws.String("us-east-1"),
 			Service:           aws.String("LAMBDA"),
 			StatusCode:        aws.String("closed"),
 		},
 		&health.Event{
+			Arn:               aws.String("arn:aws:health:us-east-1::event/LAMBDA/AWS_LAMBDA_OPERATIONAL_ISSUE/AWS_LAMBDA_OPERATIONAL_ISSUE-XXXX"),
 			EventTypeCategory: aws.String("issue"),
 			Region:            aws.String("us-east-1"),
 			Service:           aws.String("LAMBDA"),
@@ -68,7 +73,7 @@ func TestScrape(t *testing.T) {
 }
 
 func validateMetric(t *testing.T, vec *prometheus.GaugeVec, e *health.Event, expectedVal float64) {
-	m := vec.WithLabelValues(*e.EventTypeCategory, *e.Region, *e.Service, *e.StatusCode)
+	m := vec.WithLabelValues(*e.Arn, *e.EventTypeCategory, *e.Region, *e.Service, *e.StatusCode)
 	pb := &dto.Metric{}
 	m.Write(pb)
 

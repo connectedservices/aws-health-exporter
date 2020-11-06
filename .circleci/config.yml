@@ -1,0 +1,49 @@
+---
+version: 2
+
+jobs:
+  docker:
+    working_directory: /opt/build
+    docker:
+      - image: alpine:3.12
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
+        environment:
+          ECR_REPOSITORY: oneconnect/aws-health-exporter
+    steps:
+      - run:
+          name: Install system dependencies
+          command: |
+            apk add -U git curl openssh tar gzip py-pip
+            pip install awscli
+      - checkout
+      - setup_remote_docker:
+          version: 17.09.0-ce
+      - run:
+          name: Install Docker client
+          command: |
+            VER="18.06.0-ce"
+            curl -L -o /tmp/docker-$VER.tgz https://download.docker.com/linux/static/stable/x86_64/docker-$VER.tgz
+            tar -xz -C /tmp -f /tmp/docker-$VER.tgz
+            mv /tmp/docker/* /usr/bin
+      - run:
+          name: Build Docker image
+          command: |
+            eval $(aws ecr get-login --no-include-email)
+            if [ -n "${CIRCLE_TAG}" ];
+              then DOCKER_TAG=${CIRCLE_TAG};
+            else DOCKER_TAG=sha-${CIRCLE_SHA1::7};
+            fi
+            docker build -t ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPOSITORY}:${DOCKER_TAG} .
+            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPOSITORY}:${DOCKER_TAG}
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - docker:
+          context: org-global
+          filters:
+            tags:
+              only: /.*/

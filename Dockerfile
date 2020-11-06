@@ -1,8 +1,8 @@
-FROM golang:alpine
+FROM golang:1.14-alpine
 
 ARG SOURCE_COMMIT
 
-ADD . /go/src/github.com/Jimdo/aws-health-exporter
+COPY . /go/src/github.com/Jimdo/aws-health-exporter
 WORKDIR /go/src/github.com/Jimdo/aws-health-exporter
 
 RUN DATE=$(date -u '+%Y-%m-%d-%H%M UTC'); \
